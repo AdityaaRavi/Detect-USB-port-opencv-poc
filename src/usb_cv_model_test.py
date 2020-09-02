@@ -1,6 +1,7 @@
 # This code is meant to test how accurate the previously created models were.
 
 # importing required external libraries
+from __future__ import print_function
 import cv2 as cv
 import numpy as np
 import os
@@ -12,8 +13,8 @@ HAAR_MODEL_PATH = PROJECT_PATH + "/resources/final_model/haar_low_cascade.xml"
 LBP_MODEL_PATH = PROJECT_PATH + "/resources/final_model/lbp_low_cascade.xml"
 
 # creating cascade classifier variables
-haar = cv.CascadeClassifier
-lbp = cv.CascadeClassifier
+haar = cv.CascadeClassifier()
+lbp = cv.CascadeClassifier()
 
 # loading the models onto the classifier variables
 if not haar.load(cv.samples.findFile(HAAR_MODEL_PATH)):
@@ -41,38 +42,34 @@ while True:
         print("All available frames processed!")
         break
 
-    # converting the frame to grayscale
-    frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-
-    # processing the frame using the models
-    lbp_ml_result = lbp.detectMultiScale(frame)
-    haar_ml_result = haar.detectMultiScale(frame)
-
     # showing before application preview
     cv.namedWindow('before application:', cv.WINDOW_NORMAL)
     cv.imshow("before application:", frame)
 
+    # converting the frame to grayscale
+    frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+    # processing the frame using the models
+    lbp_ml_result = lbp.detectMultiScale(frame_gray)
+    haar_ml_result = haar.detectMultiScale(frame_gray)
+
     # showing to the user what objects were thought to be USB ports by the models
     # LBP
-    lbp_final = np.array([])
-    np.copy(lbp_final, frame)
-    for x, y, w, h in lbp_ml_result:
-        lbp_final = cv.rectangle(lbp_final, (x, y), (x + w, y + h), (255, 0, 0), 4)
+    #for x, y, w, h in lbp_ml_result:
+     #   frame = cv.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
 
     # Haar
-    haar_final = np.array([])
-    np.copy(haar_final, frame)
     for x, y, w, h in haar_ml_result:
-        haar_final = cv.rectangle(haar_final, (x, y), (x + w, y + h), (0, 255, 0), 4)
+        if (x , y, w, h) in lbp_ml_result:
+            frame = cv.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 255), 4)
+        #else:
+          #  frame = cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 4)
 
     # ## showing the results of both the methods to the user.
-
-    # # LBP
-    cv.namedWindow('LBP preview:', cv.WINDOW_NORMAL)
-    cv.imshow("LBP preview:", lbp_final)
-    # # Haar
-    cv.namedWindow('Haar preview:', cv.WINDOW_NORMAL)
-    cv.imshow("Haar preview:", haar_final)
+    cv.namedWindow('Processed preview:', cv.WINDOW_NORMAL)
+    cv.imshow("Processed preview:", frame)
+    if cv.waitKey(1) == ord("q"):
+        break
 
 feed.release()
 

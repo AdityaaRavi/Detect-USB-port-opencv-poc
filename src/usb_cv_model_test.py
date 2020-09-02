@@ -26,4 +26,53 @@ if not lbp.load(cv.samples.findFile(LBP_MODEL_PATH)):
 # Creating a constant to store the source of testing feed
 TESTING_INPUT = 0
 
+# creating a video feed
+feed = cv.VideoCapture(TESTING_INPUT)
+if not feed.isOpened():
+    print("There is a problem with the feed source you gave!")
+    exit()
+
+# going through each frame of the given source
+while True:
+    status, frame = feed.read()
+
+    # quiting the loop once all frames have been processed.
+    if not status:
+        print("All available frames processed!")
+        break
+
+    # converting the frame to grayscale
+    frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+
+    # processing the frame using the models
+    lbp_ml_result = lbp.detectMultiScale(frame)
+    haar_ml_result = haar.detectMultiScale(frame)
+
+    # showing before application preview
+    cv.namedWindow('before application:', cv.WINDOW_NORMAL)
+    cv.imshow("before application:", frame)
+
+    # showing to the user what objects were thought to be USB ports by the models
+    # LBP
+    lbp_final = np.array([])
+    np.copy(lbp_final, frame)
+    for x, y, w, h in lbp_ml_result:
+        lbp_final = cv.rectangle(lbp_final, (x, y), (x + w, y + h), (255, 0, 0), 4)
+
+    # Haar
+    haar_final = np.array([])
+    np.copy(haar_final, frame)
+    for x, y, w, h in haar_ml_result:
+        haar_final = cv.rectangle(haar_final, (x, y), (x + w, y + h), (0, 255, 0), 4)
+
+    # ## showing the results of both the methods to the user.
+
+    # # LBP
+    cv.namedWindow('LBP preview:', cv.WINDOW_NORMAL)
+    cv.imshow("LBP preview:", lbp_final)
+    # # Haar
+    cv.namedWindow('Haar preview:', cv.WINDOW_NORMAL)
+    cv.imshow("Haar preview:", haar_final)
+
+feed.release()
 

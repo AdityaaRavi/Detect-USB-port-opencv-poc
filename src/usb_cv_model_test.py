@@ -24,24 +24,9 @@ if not lbp.load(cv.samples.findFile(LBP_MODEL_PATH)):
     print("Error loading lbp model!")
     exit()
 
-# Creating a constant to store the source of testing feed
-TESTING_INPUT = 0
 
-# creating a video feed
-feed = cv.VideoCapture(TESTING_INPUT)
-if not feed.isOpened():
-    print("There is a problem with the feed source you gave!")
-    exit()
-
-# going through each frame of the given source
-while True:
-    status, frame = feed.read()
-
-    # quiting the loop once all frames have been processed.
-    if not status:
-        print("All available frames processed!")
-        break
-
+# Calculate results and showing it to the user
+def findAndshowUser(frame, **kwargs):
     # showing before application preview
     cv.namedWindow('before application:', cv.WINDOW_NORMAL)
     cv.imshow("before application:", frame)
@@ -54,22 +39,96 @@ while True:
     haar_ml_result = haar.detectMultiScale(frame_gray)
 
     # showing to the user what objects were thought to be USB ports by the models
-    # LBP
-    #for x, y, w, h in lbp_ml_result:
-     #   frame = cv.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
+    if "lbp" in kwargs and kwargs["lbp"]:
+        # LBP
+        for x, y, w, h in lbp_ml_result:
+            frame = cv.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
 
-    # Haar
-    for x, y, w, h in haar_ml_result:
-        if (x , y, w, h) in lbp_ml_result:
-            frame = cv.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 255), 4)
-        #else:
-          #  frame = cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 4)
+    if "haar" in kwargs and kwargs["haar"]:
+        # Haar
+        for x, y, w, h in haar_ml_result:
+            frame = cv.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 4)
+
+    if "combined" in kwargs and kwargs["combined"]:
+        for x, y, w, h in haar_ml_result:
+            if (x, y, w, h) in lbp_ml_result:
+                # displaying the common between haar and lbp
+                frame = cv.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 255), 4)
+
+    print("kwargs printed:", kwargs)
+    wait = 0
+    if "waitkey" in kwargs:
+        wait = kwargs["waitkey"]
+        print("This is a video!, wait key is: " + str(wait))
 
     # ## showing the results of both the methods to the user.
     cv.namedWindow('Processed preview:', cv.WINDOW_NORMAL)
     cv.imshow("Processed preview:", frame)
-    if cv.waitKey(1) == ord("q"):
-        break
 
-feed.release()
+    if cv.waitKey(wait) == ord("q"):
+        print("Need to close!")
+        return True
+
+    return False
+
+
+# Code for testing the model using a video
+def testWithVideo():
+    source = input("What is the path of the video feed (relative to the project root folder) you want to test with? "
+                   "Type '0' to use the webcam: ")
+
+    # Creating a constant to store the source of testing feed
+    testing_input = 0
+    if not source == '0':
+        testing_input = PROJECT_PATH + source
+
+    # creating a video feed
+    feed = cv.VideoCapture(testing_input)
+    if not feed.isOpened():
+        print("There is a problem with the feed source you gave!")
+        exit()
+
+    # going through each frame of the given source
+    while True:
+        status, frame = feed.read()
+
+        # quiting the loop once all frames have been processed.
+        if not status:
+            print("All available frames processed!")
+            break
+
+        # processing the image and showing the results
+        if findAndshowUser(frame, haar=True, waitkey=1):
+            print("wait key returned true!")
+            break
+
+    feed.release()
+
+
+# Code for testing the model using an image
+def testWithImg():
+    while True:
+        # Getting the path of the image from the user
+        source = input("What is the path of the image you want to test with? (relative to the project root folder): ")
+        testing_input = PROJECT_PATH + source
+
+        # creating an image handler for the image
+        img_handler = cv.imread(testing_input, cv.IMREAD_COLOR)
+
+        # Showing the image to the user as a preview
+        cv.namedWindow("Is this the image you want to use? Press 'y' to confirm and anything else to repick.",
+                       cv.WINDOW_NORMAL)
+
+        cv.imshow("Is this the image you want to use? Press 'y' to confirm and anything else to repick.", img_handler)
+        if cv.waitKey(0) == ord("y"):
+            break
+
+    findAndshowUser(img_handler, haar=True)
+
+
+# Asking the user if they want to test the models with an image or a video
+if input("What do you want to use to test? Type 'image' or 'video': ").lower() == "image":
+    testWithImg()
+else:
+    testWithVideo()
 

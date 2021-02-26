@@ -3,10 +3,10 @@ I made this repo a while back to help me make and test CV models to detect USB-A
 
 
 ## Current Progress
-- two models trained (one based on haar and one on lbp) to check which will suit our needs the best once we do train the models to a decent level of accuracy.
+Two models trained (one based on haar cascade and one on lbp cascade) to check which will suit our needs the best once we do train the models to a decent level of accuracy.
   - why did I do that? Haar is more accurate, but lbp is faster to train
 
- The Python code written to test the code works perfectly and it contains the following features:
+The Python code written to test the code works perfectly and it contains the following features:
 - choose from a single image or a video stream (such as the one from your webcam)
 - overlay what both the haar and lbp cascade models think are USB ports on the screen
   - choose to display, one of the above, both of the above, or the intersection of the above

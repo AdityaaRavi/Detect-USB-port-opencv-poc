@@ -1,4 +1,4 @@
-# usb-port-detect-alpha
+# Detect-USB-port-opencv-poc
 I made this repo a while back to help me make and test CV models to detect USB-A ports from a given picture or video feed with the aim of being able to use that information to make a robot arm automatically plug an USB drive into an USB port.
 
 

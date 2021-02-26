@@ -19,4 +19,4 @@ Apart from that, the following programs were made to prepare images before using
 Based on our testing, using a neural network through `TensorFlow` just seems to be a much better option for our needs, ergo that's it for this repo :/ 
 
 ## disclaimer
-As I was building this repo as merely a proof of concept (for RoverCrest's robot arm team), I did not take the time to pick proper postive images to use to train the Cascade models created by OpenCV, so the lbp and haar cascade models in this repo are examples as to why you should manually pick postive images instead of relying on OpenCV's ability (`opencv_createsamples`) to automatically create multiple postives based on single image :-( 
+As I was building this repo as merely a proof of concept (for RoverCrest's robot arm team), I did not take the time to pick proper postive images to use to train the Cascade models created by OpenCV, so the lbp and haar cascade models in this repo are examples as to why you should manually pick postive images instead of relying on OpenCV's ability (`opencv_createsamples`) to automatically create multiple postives based on single image :confounded:
